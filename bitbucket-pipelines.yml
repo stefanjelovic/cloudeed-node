@@ -1,0 +1,32 @@
+# This is a sample build configuration for JavaScript.
+# Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: andthensome/docker-node-rsync
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - node
+        script: # Modify the commands below to build your repository.
+          - npm install
+          - npm test
+  branches:
+    develop:
+      - step:
+          deployment: staging
+          script:
+          - npm install
+          - npm test
+          - rsync -a --exclude '.git' --exclude 'node_modules' --exclude 'app/node_modules' --progress ./ cdeed@3.0.193.249:/home/cdeed/cd/
+          - ssh cdeed@3.0.193.249 /home/cdeed/update_app.sh
+    master:
+      - step:
+          deployment: staging
+          script:
+          - npm install
+          - npm test
+          #- rsync -a --exclude '.git' --exclude 'node_modules' --exclude 'app/node_modules' --progress ./ cdeed@3.0.193.249:/home/cdeed/cd/
+          #- ssh cdeed@3.0.193.249 /home/cdeed/update_app.sh
